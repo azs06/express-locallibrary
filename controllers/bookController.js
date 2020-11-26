@@ -4,17 +4,7 @@ var Author = require('../models/author');
 var Genre = require('../models/genre');
 var BookInstance = require('../models/bookinstance');
 const { body, validationResult } = require('express-validator');
-
-function bookValidation(){
-    return [
-        body('title', 'Title must not be empty.').isLength({ min: 5 }).trim().escape(),
-        body('author', 'Author must not be empty.').isLength({ min: 1 }).trim().escape(),
-        body('summary', 'Summary must not be empty.').isLength({ min: 1 }).trim().escape(),
-        body('isbn', 'ISBN must not be empty').isLength({ min: 1 }).trim().escape(),
-        body('genre.*').escape(),
-    ]
-}
-
+const { bookFormValidation } = require('../validation/index');
 
 const saveBook = [
     // Convert the genre to an array.
@@ -27,7 +17,7 @@ const saveBook = [
         next();
     },
     // Validate and sanitize fields.
-    ...bookValidation(),
+    ...bookFormValidation,
     (req, res, next) => {
         const errors = validationResult(req);
         const bookObject = { 
@@ -211,7 +201,6 @@ exports.book_update_get = function(req, res, next) {
                 err.status = 404;
                 return next(err);
             }
-            // Success.
             // Mark our selected genres as checked.
             for (var all_g_iter = 0; all_g_iter < results.genres.length; all_g_iter++) {
                 for (var book_g_iter = 0; book_g_iter < results.book.genre.length; book_g_iter++) {

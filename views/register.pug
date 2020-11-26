@@ -1,10 +1,10 @@
-extends layout
+extends public_layout
 
 block content
     h1 #{title}
     p #{message}
     div(style='margin-left:20px;margin-top:20px')
-        form(method='POST', action='')
+        form(method='POST', action='', novlidate)
             div.form-group
                 label(for='name') Name:
                 input#name.form-control(type="text", placeholder="Name", name="name", required="true")

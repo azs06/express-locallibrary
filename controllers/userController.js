@@ -1,27 +1,56 @@
-var async = require('async');
-var User = require('../models/user')
+const { validationResult } = require('express-validator');
+const bcrypt = require('bcryptjs');
+const User = require('../models/user')
+const { userRegistrationFormValidation, userLoginFormValidation } = require('../validation/index');
 
 exports.register_get = function(req, res, next){
     res.render('register', {title: 'Signup'})
 }
 
-exports.register_post = function(req, res, next){
-    // implement post
-    var user = new User({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password
-    })
-    user.save(function(err){
-        if(err) return next(err);
-        res.render('register', {title: 'Signup', message: 'Registration successful'})
-    })
+const initiateRegistration = (req, res, next) => {
+    const errors = validationResult(req);
+    if(errors.isEmpty()){
+        new User({
+            name: req.body.name,
+            email: req.body.email,
+            password: bcrypt.hashSync(req.body.password, 10)
+        }).save()
+            .then(() => {
+                res.render('register', {title: 'Signup', message: 'Registration successful'})
+            })
+            .catch(error => {
+                return next(error)
+            }) 
+    }else{
+        res.render('register', {title: 'Signup', message: 'Please fix errors', errors: errors.array()})
+    }
+
 }
+exports.register_post = [
+    ...userRegistrationFormValidation,
+    initiateRegistration
+]
 
 exports.login_get = function(req, res, next){
-    res.send('Not implemented yet')
+    res.render('login', {title: 'Login'})
 }
 
-exports.login_post = function(req, res, next){
-    res.send('Not implemented yet')
-}
+exports.login_post = [
+    ...userLoginFormValidation,
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if(errors.isEmpty()){
+            const { email, password } = req.body;
+            User.findOne({email: email})
+                .then((user) => {
+                    if(user && bcrypt.compareSync(password, user.password)){
+                        req.session.user = user._id;
+                        res.redirect('/users')
+                    }
+                })
+        }else{
+            res.render('login', {title: 'Login', errors: errors.array()})
+        }
+
+    }
+]

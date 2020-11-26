@@ -1,0 +1,13 @@
+extends public_layout
+
+block content
+    h1 #{title}
+    div(style='margin-left:20px;margin-top:20px')
+        form(method="POST",action="")
+            .form-group
+                label(for="email") Email
+                input#email.form-control(type="email", name="email" placeholder="Email")
+            .form-group
+                label(for="password") Password    
+                input#password.form-control(type="password", placeholder="Password", name="password")
+            button.btn.btn-primary(type="submit") Submit  
