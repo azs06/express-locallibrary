@@ -45,7 +45,7 @@ exports.login_post = [
                 .then((user) => {
                     if(user && bcrypt.compareSync(password, user.password)){
                         req.session.user = user._id;
-                        res.redirect('/users')
+                        res.redirect('/dashboard')
                     }
                 })
         }else{

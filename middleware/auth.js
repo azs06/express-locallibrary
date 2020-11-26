@@ -3,7 +3,7 @@ const { secret } = require('../config');
 const User = require('../models/user');
 
 module.exports.loginRequired = (req, res, next) => {
-    if (req.user) {
+    if (req.session && req.session.user) {
       return next();
     }
     res.redirect("/login");

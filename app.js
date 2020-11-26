@@ -10,9 +10,10 @@ var cors = require('cors')
 var MongoStore = require('connect-mongo')(session);
 
 const { secret } = require('./config');
+const { loginRequired } = require('./middleware/auth')
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var authRouter = require('./routes/auth');
 var dashboardRouter = require('./routes/dashboard');
 
 
@@ -58,8 +59,8 @@ app.use(session({
 /* routes */
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/dashboard', dashboardRouter); 
+app.use(authRouter);
+app.use('/dashboard', loginRequired, dashboardRouter); 
 
 /* end routes */
 
